@@ -1,2 +1,2 @@
 # binary
-Minecraft Bedrock Edition Binary Utilities library written in Go.
+library for (de)serializing minecraft bedrock edition binary data on the network

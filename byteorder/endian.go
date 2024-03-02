@@ -1,7 +1,7 @@
 package byteorder
 
 // Endian refers to the byterorder in which a sequence of bytes is stored or transmitted over the network.
-type Endian byte
+type Endian = byte
 
 const (
 	// Little-endian is an order in which the little end, the least significant value in the sequence, is first

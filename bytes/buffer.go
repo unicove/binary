@@ -1,7 +1,5 @@
 package bytes
 
-import "errors"
-
 // Buffer represents a fixed size buffer for reading and writing various Minecraft Datatypes over the wire.
 // It's capacity is fixed and cannot be dynamically increased, thus increasing performance. It is useful for
 // those scenarios where the exact size or the max size of the data you want to receive is known.
@@ -36,7 +34,7 @@ func (b *Buffer) WriteOffset() int {
 // would reach.
 func (b *Buffer) Next(n int) error {
 	if b.cap-b.readOffset-n < 1 {
-		return errors.New(EOF_ERROR)
+		return EOF_ERROR
 	}
 
 	b.readOffset += n
@@ -48,11 +46,11 @@ func (b *Buffer) Next(n int) error {
 func (b *Buffer) Read(buf []byte) error {
 	n := b.cap - b.readOffset
 	if n < 1 {
-		return errors.New(EOF_ERROR)
+		return EOF_ERROR
 	}
 
 	l := min(n, cap(buf))
-	copy(buf, b.slice[b.readOffset:b.readOffset+l])
+	copy(buf[:l], b.slice[b.readOffset:b.readOffset+l])
 
 	b.readOffset += l
 	return nil
@@ -63,11 +61,11 @@ func (b *Buffer) Read(buf []byte) error {
 func (b *Buffer) Write(buf []byte) error {
 	n := b.cap - b.writeOffset
 	if n < 1 {
-		return errors.New(EOF_ERROR)
+		return EOF_ERROR
 	}
 
-	l := min(n, cap(buf))
-	copy(b.slice[b.writeOffset:b.writeOffset+l], buf)
+	l := min(n, len(buf))
+	copy(b.slice[b.writeOffset:b.writeOffset+l], buf[:l])
 
 	b.writeOffset += n
 	return nil

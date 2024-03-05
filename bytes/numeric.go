@@ -1,7 +1,6 @@
 package bytes
 
 import (
-	"errors"
 	"math"
 
 	"github.com/gamevidea/binary/byteorder"
@@ -10,7 +9,7 @@ import (
 // Reads an unsigned byte and returns it
 func (b *Buffer) ReadUint8() (v uint8, err error) {
 	if b.cap-b.readOffset < 1 {
-		return 0, errors.New(EOF_ERROR)
+		return 0, EOF_ERROR
 	}
 
 	v = b.slice[b.readOffset]
@@ -20,21 +19,21 @@ func (b *Buffer) ReadUint8() (v uint8, err error) {
 }
 
 // Writes an unsigned byte
-func (b *Buffer) WriteUint8(v uint8) (err error) {
+func (b *Buffer) WriteUint8(v uint8) error {
 	if b.cap-b.writeOffset < 1 {
-		return errors.New(EOF_ERROR)
+		return EOF_ERROR
 	}
 
 	b.slice[b.writeOffset] = v
 	b.writeOffset += 1
 
-	return
+	return nil
 }
 
 // Reads a signed byte and returns it
 func (b *Buffer) ReadInt8() (v int8, err error) {
 	if b.cap-b.readOffset < 1 {
-		return 0, errors.New(EOF_ERROR)
+		return 0, EOF_ERROR
 	}
 
 	v = int8(b.slice[b.readOffset])
@@ -44,21 +43,21 @@ func (b *Buffer) ReadInt8() (v int8, err error) {
 }
 
 // Writes a signed byte
-func (b *Buffer) WriteInt8(v int8) (err error) {
+func (b *Buffer) WriteInt8(v int8) error {
 	if b.cap-b.writeOffset < 1 {
-		return errors.New(EOF_ERROR)
+		return EOF_ERROR
 	}
 
 	b.slice[b.writeOffset] = byte(v)
 	b.writeOffset += 1
 
-	return
+	return nil
 }
 
 // Reads an unsigned short and returns it
 func (b *Buffer) ReadUint16(e byteorder.Endian) (v uint16, err error) {
 	if b.cap-b.readOffset < 2 {
-		return 0, errors.New(EOF_ERROR)
+		return 0, EOF_ERROR
 	}
 
 	switch e {
@@ -67,7 +66,7 @@ func (b *Buffer) ReadUint16(e byteorder.Endian) (v uint16, err error) {
 	case byteorder.BigEndian:
 		v = uint16(b.slice[b.readOffset+1]) | uint16(b.slice[b.readOffset])<<8
 	default:
-		return 0, errors.New(CPB_ERROR)
+		return 0, CPE_ERROR
 	}
 
 	b.readOffset += 2
@@ -75,9 +74,9 @@ func (b *Buffer) ReadUint16(e byteorder.Endian) (v uint16, err error) {
 }
 
 // Writes an unsigned short
-func (b *Buffer) WriteUint16(v uint16, e byteorder.Endian) (err error) {
+func (b *Buffer) WriteUint16(v uint16, e byteorder.Endian) error {
 	if b.cap-b.writeOffset < 2 {
-		return errors.New(EOF_ERROR)
+		return EOF_ERROR
 	}
 
 	switch e {
@@ -88,17 +87,17 @@ func (b *Buffer) WriteUint16(v uint16, e byteorder.Endian) (err error) {
 		b.slice[b.writeOffset+1] = byte(v)
 		b.slice[b.writeOffset] = byte(v >> 8)
 	default:
-		return errors.New(CPB_ERROR)
+		return CPE_ERROR
 	}
 
 	b.writeOffset += 2
-	return
+	return nil
 }
 
 // Reads a signed short and returns it
 func (b *Buffer) ReadInt16(e byteorder.Endian) (v int16, err error) {
 	if b.cap-b.readOffset < 2 {
-		return 0, errors.New(EOF_ERROR)
+		return 0, EOF_ERROR
 	}
 
 	switch e {
@@ -107,7 +106,7 @@ func (b *Buffer) ReadInt16(e byteorder.Endian) (v int16, err error) {
 	case byteorder.BigEndian:
 		v = int16(b.slice[b.readOffset+1]) | int16(b.slice[b.readOffset])<<8
 	default:
-		return 0, errors.New(CPB_ERROR)
+		return 0, CPE_ERROR
 	}
 
 	b.readOffset += 2
@@ -115,9 +114,9 @@ func (b *Buffer) ReadInt16(e byteorder.Endian) (v int16, err error) {
 }
 
 // Writes a signed short
-func (b *Buffer) WriteInt16(v int16, e byteorder.Endian) (err error) {
+func (b *Buffer) WriteInt16(v int16, e byteorder.Endian) error {
 	if b.cap-b.writeOffset < 2 {
-		return errors.New(EOF_ERROR)
+		return EOF_ERROR
 	}
 
 	switch e {
@@ -128,17 +127,17 @@ func (b *Buffer) WriteInt16(v int16, e byteorder.Endian) (err error) {
 		b.slice[b.writeOffset+1] = byte(v)
 		b.slice[b.writeOffset] = byte(v >> 8)
 	default:
-		return errors.New(CPB_ERROR)
+		return CPE_ERROR
 	}
 
 	b.writeOffset += 2
-	return
+	return nil
 }
 
 // Reads an unsigned 24-bit integer and returns it.
 func (b *Buffer) ReadUint24(e byteorder.Endian) (v uint32, err error) {
 	if b.cap-b.readOffset < 3 {
-		return 0, errors.New(EOF_ERROR)
+		return 0, EOF_ERROR
 	}
 
 	switch e {
@@ -147,7 +146,7 @@ func (b *Buffer) ReadUint24(e byteorder.Endian) (v uint32, err error) {
 	case byteorder.BigEndian:
 		v = uint32(b.slice[b.readOffset+2]) | uint32(b.slice[b.readOffset+1])<<8 | uint32(b.slice[b.readOffset])<<16
 	default:
-		return 0, errors.New(CPB_ERROR)
+		return 0, CPE_ERROR
 	}
 
 	b.readOffset += 3
@@ -155,9 +154,9 @@ func (b *Buffer) ReadUint24(e byteorder.Endian) (v uint32, err error) {
 }
 
 // Writes an unsigned 24-bit integer
-func (b *Buffer) WriteUint24(v uint32, e byteorder.Endian) (err error) {
+func (b *Buffer) WriteUint24(v uint32, e byteorder.Endian) error {
 	if b.cap-b.writeOffset < 3 {
-		return errors.New(EOF_ERROR)
+		return EOF_ERROR
 	}
 
 	switch e {
@@ -170,17 +169,17 @@ func (b *Buffer) WriteUint24(v uint32, e byteorder.Endian) (err error) {
 		b.slice[b.writeOffset+1] = byte(v >> 8)
 		b.slice[b.writeOffset] = byte(v >> 16)
 	default:
-		return errors.New(CPB_ERROR)
+		return CPE_ERROR
 	}
 
 	b.writeOffset += 3
-	return
+	return nil
 }
 
 // Reads an unsigned 32-bit integer and returns it.
 func (b *Buffer) ReadUint32(e byteorder.Endian) (v uint32, err error) {
 	if b.cap-b.readOffset < 4 {
-		return 0, errors.New(EOF_ERROR)
+		return 0, EOF_ERROR
 	}
 
 	switch e {
@@ -191,7 +190,7 @@ func (b *Buffer) ReadUint32(e byteorder.Endian) (v uint32, err error) {
 		v = uint32(b.slice[b.readOffset+3]) | uint32(b.slice[b.readOffset+2])<<8 |
 			uint32(b.slice[b.readOffset+1])<<16 | uint32(b.slice[b.readOffset])<<24
 	default:
-		return 0, errors.New(CPB_ERROR)
+		return 0, CPE_ERROR
 	}
 
 	b.readOffset += 4
@@ -199,9 +198,9 @@ func (b *Buffer) ReadUint32(e byteorder.Endian) (v uint32, err error) {
 }
 
 // Writes an unsigned 32-bit integer.
-func (b *Buffer) WriteUint32(v uint32, e byteorder.Endian) (err error) {
+func (b *Buffer) WriteUint32(v uint32, e byteorder.Endian) error {
 	if b.cap-b.writeOffset < 4 {
-		return errors.New(EOF_ERROR)
+		return EOF_ERROR
 	}
 
 	switch e {
@@ -216,17 +215,17 @@ func (b *Buffer) WriteUint32(v uint32, e byteorder.Endian) (err error) {
 		b.slice[b.writeOffset+1] = byte(v >> 16)
 		b.slice[b.writeOffset] = byte(v >> 24)
 	default:
-		return errors.New(CPB_ERROR)
+		return CPE_ERROR
 	}
 
 	b.writeOffset += 4
-	return
+	return nil
 }
 
 // Reads a signed 32-bit integer and returns it
 func (b *Buffer) ReadInt32(e byteorder.Endian) (v int32, err error) {
 	if b.cap-b.readOffset < 4 {
-		return 0, errors.New(EOF_ERROR)
+		return 0, EOF_ERROR
 	}
 
 	switch e {
@@ -237,7 +236,7 @@ func (b *Buffer) ReadInt32(e byteorder.Endian) (v int32, err error) {
 		v = int32(b.slice[b.readOffset+3]) | int32(b.slice[b.readOffset+2])<<8 |
 			int32(b.slice[b.readOffset+1])<<16 | int32(b.slice[b.readOffset])<<24
 	default:
-		return 0, errors.New(CPB_ERROR)
+		return 0, CPE_ERROR
 	}
 
 	b.readOffset += 4
@@ -245,9 +244,9 @@ func (b *Buffer) ReadInt32(e byteorder.Endian) (v int32, err error) {
 }
 
 // Writes a signed 32-bit integer
-func (b *Buffer) WriteInt32(v int32, e byteorder.Endian) (err error) {
+func (b *Buffer) WriteInt32(v int32, e byteorder.Endian) error {
 	if b.cap-b.writeOffset < 4 {
-		return errors.New(EOF_ERROR)
+		return EOF_ERROR
 	}
 
 	switch e {
@@ -262,17 +261,17 @@ func (b *Buffer) WriteInt32(v int32, e byteorder.Endian) (err error) {
 		b.slice[b.writeOffset+1] = byte(v >> 16)
 		b.slice[b.writeOffset] = byte(v >> 24)
 	default:
-		return errors.New(CPB_ERROR)
+		return CPE_ERROR
 	}
 
 	b.writeOffset += 4
-	return
+	return nil
 }
 
 // Reads an unsigned 64-bit integer and returns it
 func (b *Buffer) ReadUint64(e byteorder.Endian) (v uint64, err error) {
 	if b.cap-b.readOffset < 8 {
-		return 0, errors.New(EOF_ERROR)
+		return 0, EOF_ERROR
 	}
 
 	switch e {
@@ -287,7 +286,7 @@ func (b *Buffer) ReadUint64(e byteorder.Endian) (v uint64, err error) {
 			uint64(b.slice[b.readOffset+3])<<32 | uint64(b.slice[b.readOffset+2])<<40 |
 			uint64(b.slice[b.readOffset+1])<<48 | uint64(b.slice[b.readOffset])<<56
 	default:
-		return 0, errors.New(CPB_ERROR)
+		return 0, CPE_ERROR
 	}
 
 	b.readOffset += 8
@@ -295,9 +294,9 @@ func (b *Buffer) ReadUint64(e byteorder.Endian) (v uint64, err error) {
 }
 
 // Writes an unsigned 64-bit integer
-func (b *Buffer) WriteUint64(v uint64, e byteorder.Endian) (err error) {
+func (b *Buffer) WriteUint64(v uint64, e byteorder.Endian) error {
 	if b.cap-b.writeOffset < 8 {
-		return errors.New(EOF_ERROR)
+		return EOF_ERROR
 	}
 
 	switch e {
@@ -320,17 +319,17 @@ func (b *Buffer) WriteUint64(v uint64, e byteorder.Endian) (err error) {
 		b.slice[b.writeOffset+1] = byte(v >> 48)
 		b.slice[b.writeOffset] = byte(v >> 56)
 	default:
-		return errors.New(CPB_ERROR)
+		return CPE_ERROR
 	}
 
 	b.writeOffset += 8
-	return
+	return nil
 }
 
 // Reads a signed 64-bit integer and returns it
 func (b *Buffer) ReadInt64(e byteorder.Endian) (v int64, err error) {
 	if b.cap-b.readOffset < 8 {
-		return 0, errors.New(EOF_ERROR)
+		return 0, EOF_ERROR
 	}
 
 	switch e {
@@ -345,7 +344,7 @@ func (b *Buffer) ReadInt64(e byteorder.Endian) (v int64, err error) {
 			int64(b.slice[b.readOffset+3])<<32 | int64(b.slice[b.readOffset+2])<<40 |
 			int64(b.slice[b.readOffset+1])<<48 | int64(b.slice[b.readOffset])<<56
 	default:
-		return 0, errors.New(CPB_ERROR)
+		return 0, CPE_ERROR
 	}
 
 	b.readOffset += 8
@@ -353,9 +352,9 @@ func (b *Buffer) ReadInt64(e byteorder.Endian) (v int64, err error) {
 }
 
 // Writes a signed 64-bit integer
-func (b *Buffer) WriteInt64(v int64, e byteorder.Endian) (err error) {
+func (b *Buffer) WriteInt64(v int64, e byteorder.Endian) error {
 	if b.cap-b.writeOffset < 8 {
-		return errors.New(EOF_ERROR)
+		return EOF_ERROR
 	}
 
 	switch e {
@@ -378,17 +377,17 @@ func (b *Buffer) WriteInt64(v int64, e byteorder.Endian) (err error) {
 		b.slice[b.writeOffset+1] = byte(v >> 48)
 		b.slice[b.writeOffset] = byte(v >> 56)
 	default:
-		return errors.New(CPB_ERROR)
+		return CPE_ERROR
 	}
 
 	b.writeOffset += 8
-	return
+	return nil
 }
 
 // Reads a 32-bit floating point decimal number and returns it
 func (b *Buffer) ReadFloat32(e byteorder.Endian) (v float32, err error) {
 	if b.cap-b.readOffset < 4 {
-		return 0, errors.New(EOF_ERROR)
+		return 0, EOF_ERROR
 	}
 
 	switch e {
@@ -401,7 +400,7 @@ func (b *Buffer) ReadFloat32(e byteorder.Endian) (v float32, err error) {
 			uint32(b.slice[b.readOffset+1])<<16 | uint32(b.slice[b.readOffset])<<24
 		v = math.Float32frombits(bits)
 	default:
-		return 0, errors.New(CPB_ERROR)
+		return 0, CPE_ERROR
 	}
 
 	b.readOffset += 4
@@ -409,9 +408,9 @@ func (b *Buffer) ReadFloat32(e byteorder.Endian) (v float32, err error) {
 }
 
 // Writes a 32-bit floating point decimal number
-func (b *Buffer) WriteFloat32(v float32, e byteorder.Endian) (err error) {
+func (b *Buffer) WriteFloat32(v float32, e byteorder.Endian) error {
 	if b.cap-b.writeOffset < 4 {
-		return errors.New(EOF_ERROR)
+		return EOF_ERROR
 	}
 
 	bits := math.Float32bits(v)
@@ -428,17 +427,17 @@ func (b *Buffer) WriteFloat32(v float32, e byteorder.Endian) (err error) {
 		b.slice[b.writeOffset+1] = byte(bits >> 16)
 		b.slice[b.writeOffset] = byte(bits >> 24)
 	default:
-		return errors.New(CPB_ERROR)
+		return CPE_ERROR
 	}
 
 	b.writeOffset += 4
-	return
+	return nil
 }
 
 // Reads a 64-bit floating point decimal number and returns it
 func (b *Buffer) ReadFloat64(e byteorder.Endian) (v float64, err error) {
 	if b.cap-b.readOffset < 8 {
-		return 0, errors.New(EOF_ERROR)
+		return 0, EOF_ERROR
 	}
 
 	switch e {
@@ -455,7 +454,7 @@ func (b *Buffer) ReadFloat64(e byteorder.Endian) (v float64, err error) {
 			uint64(b.slice[b.readOffset+1])<<48 | uint64(b.slice[b.readOffset])<<56
 		v = math.Float64frombits(bits)
 	default:
-		return 0, errors.New(CPB_ERROR)
+		return 0, CPE_ERROR
 	}
 
 	b.readOffset += 8
@@ -463,9 +462,9 @@ func (b *Buffer) ReadFloat64(e byteorder.Endian) (v float64, err error) {
 }
 
 // Writes a 64-bit floating point decimal number
-func (b *Buffer) WriteFloat64(v float64, e byteorder.Endian) (err error) {
+func (b *Buffer) WriteFloat64(v float64, e byteorder.Endian) error {
 	if b.cap-b.writeOffset < 8 {
-		return errors.New(EOF_ERROR)
+		return EOF_ERROR
 	}
 
 	bits := math.Float64bits(v)
@@ -490,9 +489,9 @@ func (b *Buffer) WriteFloat64(v float64, e byteorder.Endian) (err error) {
 		b.slice[b.writeOffset+1] = byte(bits >> 48)
 		b.slice[b.writeOffset] = byte(bits >> 56)
 	default:
-		return errors.New(CPB_ERROR)
+		return CPE_ERROR
 	}
 
 	b.writeOffset += 8
-	return
+	return nil
 }

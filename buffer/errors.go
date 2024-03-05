@@ -1,4 +1,4 @@
-package bytes
+package buffer
 
 import "errors"
 
@@ -16,3 +16,6 @@ var CPI_ERROR = errors.New("could not parse the ip address version from the prov
 
 // CPB_ERROR is the error returned when unknown boolbyte is provided in encoding/decoding of booleans
 var CPB_ERROR = errors.New("could not parse the boolbyte from the provided byte")
+
+// CPM_ERROR is the error returned when the magic unconnected sequence could not be parsed
+var CPM_ERROR = errors.New("could not parse the magic unconnected message sequence")

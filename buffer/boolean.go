@@ -1,4 +1,4 @@
-package bytes
+package buffer
 
 // boolByte is an alias for the byte representation of booleans. True is expressed as 0x01 and
 // False is expressed as 0x00 in their respective byte representation.

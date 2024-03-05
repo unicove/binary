@@ -1,8 +1,7 @@
-package bytes
+package buffer
 
-// Buffer represents a fixed size buffer for reading and writing various Minecraft Datatypes over the wire.
-// It's capacity is fixed and cannot be dynamically increased, thus increasing performance. It is useful for
-// those scenarios where the exact size or the max size of the data you want to receive is known.
+// Represents a fixed size buffer with zero additional memory allocations. It provides fast methods to read
+// and write various datatypes that are serialized to and from a minecraft network wire.
 type Buffer struct {
 	slice       []byte
 	cap         int
@@ -14,7 +13,7 @@ type Buffer struct {
 func New(slice []byte) *Buffer {
 	return &Buffer{
 		slice:       slice,
-		cap:         cap(slice),
+		cap:         len(slice),
 		readOffset:  0,
 		writeOffset: 0,
 	}
@@ -41,6 +40,11 @@ func (b *Buffer) Next(n int) error {
 	return nil
 }
 
+// Returns the number of bytes remaining to be read from the buffer.
+func (b *Buffer) Remaining() int {
+	return b.cap - b.readOffset
+}
+
 // Reads the content until either EOF is reached or the maximum capacity of the provided slice
 // gets fully used.
 func (b *Buffer) Read(buf []byte) error {
@@ -49,7 +53,7 @@ func (b *Buffer) Read(buf []byte) error {
 		return EOF_ERROR
 	}
 
-	l := min(n, cap(buf))
+	l := min(n, len(buf))
 	copy(buf[:l], b.slice[b.readOffset:b.readOffset+l])
 
 	b.readOffset += l

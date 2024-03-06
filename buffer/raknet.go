@@ -160,9 +160,11 @@ const readDeadline = 16
 
 // Reads system addresses from the buffer into the provided slice and returns an error if the
 // operation was unsuccessful.
-func (b *Buffer) ReadSystemAddresses(v []*net.UDPAddr) error {
+func (b *Buffer) ReadSystemAddresses() error {
+	var addr = net.UDPAddr{}
+
 	for i := 0; i < SYSTEM_ADDRESSES_COUNT; i++ {
-		if err := b.ReadAddr(v[i]); err != nil {
+		if err := b.ReadAddr(&addr); err != nil {
 			return err
 		}
 
@@ -176,9 +178,14 @@ func (b *Buffer) ReadSystemAddresses(v []*net.UDPAddr) error {
 
 // Writes system addresses from the provided slice in the underlying buffer and returns an error if the
 // operation was unsuccessful.
-func (b *Buffer) WriteSystemAddresses(v []*net.UDPAddr) error {
+func (b *Buffer) WriteSystemAddresses() error {
+	addr := net.UDPAddr{
+		IP:   net.ParseIP("255.255.255.255"),
+		Port: 19132,
+	}
+
 	for i := 0; i < SYSTEM_ADDRESSES_COUNT; i++ {
-		if err := b.WriteAddr(v[i]); err != nil {
+		if err := b.WriteAddr(&addr); err != nil {
 			return err
 		}
 	}

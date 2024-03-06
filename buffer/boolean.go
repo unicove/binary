@@ -1,33 +1,27 @@
 package buffer
 
-// boolByte is an alias for the byte representation of booleans. True is expressed as 0x01 and
-// False is expressed as 0x00 in their respective byte representation.
-type boolByte = uint8
-
 const (
 	// trueByte is the byte representation for true 0x01 in bytes
-	trueByte boolByte = 0x01
+	trueByte uint8 = 0x01
 	// falseByte is the byte representation for false 0x00 in bytes
-	falseByte boolByte = 0x00
+	falseByte uint8 = 0x00
 )
 
 // Reads a boolean from the buffer and returns it
-func (b *Buffer) ReadBool(v *bool) error {
+func (b *Buffer) ReadBool() (bool, error) {
 	byte, err := b.ReadUint8()
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	switch byte {
 	case trueByte:
-		*v = true
+		return true, nil
 	case falseByte:
-		*v = false
+		return false, nil
 	default:
-		return CPB_ERROR
+		return false, CPB_ERROR
 	}
-
-	return nil
 }
 
 // Writes the provided boolean value into the buffer

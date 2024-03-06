@@ -29,14 +29,25 @@ func (b *Buffer) WriteOffset() int {
 	return b.writeOffset
 }
 
-// Attempts to shift the read offset index by the number passed. Returns an error if the EOF
-// would reach.
-func (b *Buffer) Next(n int) error {
+// Attempts to shift the read offset by the offset passed. Returns an error if the EOF would
+// reach in doing so.
+func (b *Buffer) AdvanceReader(n int) error {
 	if b.cap-b.readOffset-n < 1 {
 		return EOF_ERROR
 	}
 
 	b.readOffset += n
+	return nil
+}
+
+// Advances the write offset by the offset passed. Returns an error if the EOF would reach
+// in doing so.
+func (b *Buffer) AdvanceWriter(n int) error {
+	if b.cap-b.writeOffset-n < 1 {
+		return EOF_ERROR
+	}
+
+	b.writeOffset += n
 	return nil
 }
 

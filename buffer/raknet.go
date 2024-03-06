@@ -29,8 +29,7 @@ func (b *Buffer) ReadAddr(v *net.UDPAddr) error {
 
 	switch ver {
 	case ipv4:
-		octets := [4]byte{}
-		if err := b.Read(octets[:]); err != nil {
+		if err := b.Read(v.IP); err != nil {
 			return err
 		}
 
@@ -39,10 +38,9 @@ func (b *Buffer) ReadAddr(v *net.UDPAddr) error {
 			return err
 		}
 
-		v.IP = octets[:]
 		v.Port = int(port)
 	case ipv6:
-		if err := b.Next(2); err != nil {
+		if err := b.AdvanceReader(2); err != nil {
 			return err
 		}
 
@@ -51,20 +49,18 @@ func (b *Buffer) ReadAddr(v *net.UDPAddr) error {
 			return err
 		}
 
-		if err := b.Next(4); err != nil {
+		if err := b.AdvanceReader(4); err != nil {
 			return err
 		}
 
-		octets := [16]byte{}
-		if err := b.Read(octets[:]); err != nil {
+		if err := b.Read(v.IP); err != nil {
 			return err
 		}
 
-		if err := b.Next(4); err != nil {
+		if err := b.AdvanceReader(4); err != nil {
 			return err
 		}
 
-		v.IP = octets[:]
 		v.Port = int(port)
 	default:
 		return CPI_ERROR

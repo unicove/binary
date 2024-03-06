@@ -189,3 +189,42 @@ func (b *Buffer) WriteSystemAddresses(v []*net.UDPAddr) error {
 
 	return nil
 }
+
+// Reads the raknet pong data from the buffer into the provided slice and returns an error
+// if the operation failed
+func (b *Buffer) ReadPongData(buf []byte) error {
+	l, err := b.ReadInt16(byteorder.BigEndian)
+	if err != nil {
+		return err
+	}
+
+	len := int(l)
+
+	if b.cap-b.readOffset < len {
+		return EOF_ERROR
+	}
+
+	copy(buf[:len], b.slice[b.readOffset:b.readOffset+len])
+	b.readOffset += len
+
+	return nil
+}
+
+// Writes the raknet pong data from the provided slice into the underlying buffer and returns
+// an error if the operation failed
+func (b *Buffer) WritePongData(buf []byte) error {
+	len := len(buf)
+
+	if err := b.WriteInt16(int16(len), byteorder.BigEndian); err != nil {
+		return err
+	}
+
+	if b.cap-b.writeOffset < len {
+		return EOF_ERROR
+	}
+
+	copy(b.slice[b.writeOffset:b.writeOffset+len], buf[:len])
+	b.writeOffset += len
+
+	return nil
+}

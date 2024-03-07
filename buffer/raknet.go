@@ -29,8 +29,8 @@ func (b *Buffer) ReadAddr(v *net.UDPAddr) error {
 
 	switch ver {
 	case ipv4:
-		ipBytes := make([]byte, 4)
-		if err := b.Read(ipBytes); err != nil {
+		v.IP = make([]byte, 4)
+		if err := b.Read(v.IP); err != nil {
 			return err
 		}
 
@@ -39,7 +39,6 @@ func (b *Buffer) ReadAddr(v *net.UDPAddr) error {
 			return err
 		}
 
-		v.IP = net.IPv4((-ipBytes[0]-1)&0xff, (-ipBytes[1]-1)&0xff, (-ipBytes[2]-1)&0xff, (-ipBytes[3]-1)&0xff)
 		v.Port = int(port)
 	case ipv6:
 		if err := b.ShiftReader(2); err != nil {
@@ -80,12 +79,8 @@ func (b *Buffer) WriteAddr(v *net.UDPAddr) error {
 			return err
 		}
 
-		ipBytes := v.IP.To4()
-
-		for i := 0; i < 4; i++ {
-			if err := b.WriteUint8(^ipBytes[i]); err != nil {
-				return err
-			}
+		if err := b.Write(v.IP.To4()); err != nil {
+			return err
 		}
 
 		if err := b.WriteUint16(uint16(v.Port), byteorder.BigEndian); err != nil {

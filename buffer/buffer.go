@@ -19,6 +19,36 @@ func New(slice []byte) *Buffer {
 	}
 }
 
+// Reads the content until either EOF is reached or the maximum capacity of the provided slice
+// gets fully used.
+func (b *Buffer) Read(buf []byte) error {
+	n := b.cap - b.readOffset
+	if n < 1 {
+		return EOF_ERROR
+	}
+
+	l := min(n, len(buf))
+	copy(buf[:l], b.slice[b.readOffset:b.readOffset+l])
+
+	b.readOffset += l
+	return nil
+}
+
+// Writes the contents of the provided slice until either EOF is reached or the maximum capacity of
+// the underlying buffer gets fully used.
+func (b *Buffer) Write(buf []byte) error {
+	n := b.cap - b.writeOffset
+	if n < 1 {
+		return EOF_ERROR
+	}
+
+	l := min(n, len(buf))
+	copy(b.slice[b.writeOffset:b.writeOffset+l], buf[:l])
+
+	b.writeOffset += n
+	return nil
+}
+
 // Returns the read offset
 func (b *Buffer) ReadOffset() int {
 	return b.readOffset
@@ -51,16 +81,6 @@ func (b *Buffer) ShiftWriter(n int) error {
 	return nil
 }
 
-// Resets the read offset index to 0
-func (b *Buffer) ResetReader() {
-	b.readOffset = 0
-}
-
-// Resets the write offset index to 0
-func (b *Buffer) ResetWriter() {
-	b.writeOffset = 0
-}
-
 // Returns a slice of the portion of the buffer that has been written so far
 func (b *Buffer) Bytes() []byte {
 	return b.slice[:b.writeOffset]
@@ -71,32 +91,18 @@ func (b *Buffer) Remaining() int {
 	return b.cap - b.readOffset
 }
 
-// Reads the content until either EOF is reached or the maximum capacity of the provided slice
-// gets fully used.
-func (b *Buffer) Read(buf []byte) error {
-	n := b.cap - b.readOffset
-	if n < 1 {
-		return EOF_ERROR
-	}
-
-	l := min(n, len(buf))
-	copy(buf[:l], b.slice[b.readOffset:b.readOffset+l])
-
-	b.readOffset += l
-	return nil
+// Resets the read offset index to 0
+func (b *Buffer) ResetReader() {
+	b.readOffset = 0
 }
 
-// Writes the contents of the provided slice until either EOF is reached or the maximum capacity of
-// the underlying buffer gets fully used.
-func (b *Buffer) Write(buf []byte) error {
-	n := b.cap - b.writeOffset
-	if n < 1 {
-		return EOF_ERROR
-	}
+// Resets the write offset index to 0
+func (b *Buffer) ResetWriter() {
+	b.writeOffset = 0
+}
 
-	l := min(n, len(buf))
-	copy(b.slice[b.writeOffset:b.writeOffset+l], buf[:l])
-
-	b.writeOffset += n
-	return nil
+// Resets the read and write offset to 0
+func (b *Buffer) Reset() {
+	b.readOffset = 0
+	b.writeOffset = 0
 }

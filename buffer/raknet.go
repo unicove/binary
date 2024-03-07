@@ -40,7 +40,7 @@ func (b *Buffer) ReadAddr(v *net.UDPAddr) error {
 
 		v.Port = int(port)
 	case ipv6:
-		if err := b.AdvanceReader(2); err != nil {
+		if err := b.ShiftReader(2); err != nil {
 			return err
 		}
 
@@ -49,7 +49,7 @@ func (b *Buffer) ReadAddr(v *net.UDPAddr) error {
 			return err
 		}
 
-		if err := b.AdvanceReader(4); err != nil {
+		if err := b.ShiftReader(4); err != nil {
 			return err
 		}
 
@@ -57,7 +57,7 @@ func (b *Buffer) ReadAddr(v *net.UDPAddr) error {
 			return err
 		}
 
-		if err := b.AdvanceReader(4); err != nil {
+		if err := b.ShiftReader(4); err != nil {
 			return err
 		}
 

@@ -31,7 +31,7 @@ func (b *Buffer) WriteOffset() int {
 
 // Attempts to shift the read offset by the offset passed. Returns an error if the EOF would
 // reach in doing so.
-func (b *Buffer) AdvanceReader(n int) error {
+func (b *Buffer) ShiftReader(n int) error {
 	if b.cap-b.readOffset-n < 1 {
 		return EOF_ERROR
 	}
@@ -42,13 +42,28 @@ func (b *Buffer) AdvanceReader(n int) error {
 
 // Advances the write offset by the offset passed. Returns an error if the EOF would reach
 // in doing so.
-func (b *Buffer) AdvanceWriter(n int) error {
+func (b *Buffer) ShiftWriter(n int) error {
 	if b.cap-b.writeOffset-n < 1 {
 		return EOF_ERROR
 	}
 
 	b.writeOffset += n
 	return nil
+}
+
+// Resets the read offset index to 0
+func (b *Buffer) ResetReader() {
+	b.readOffset = 0
+}
+
+// Resets the write offset index to 0
+func (b *Buffer) ResetWriter() {
+	b.writeOffset = 0
+}
+
+// Returns a slice of the portion of the buffer that has been written so far
+func (b *Buffer) Bytes() []byte {
+	return b.slice[:b.writeOffset]
 }
 
 // Returns the number of bytes remaining to be read from the buffer.

@@ -42,7 +42,7 @@ func (b *Buffer) ReadAddr(v *net.UDPAddr) error {
 		v.IP = net.IPv4((-ipBytes[0]-1)&0xff, (-ipBytes[1]-1)&0xff, (-ipBytes[2]-1)&0xff, (-ipBytes[3]-1)&0xff)
 		v.Port = int(port)
 	case ipv6:
-		if err := b.ShiftReader(2); err != nil {
+		if err := b.Shift(2); err != nil {
 			return err
 		}
 
@@ -51,7 +51,7 @@ func (b *Buffer) ReadAddr(v *net.UDPAddr) error {
 			return err
 		}
 
-		if err := b.ShiftReader(4); err != nil {
+		if err := b.Shift(4); err != nil {
 			return err
 		}
 
@@ -60,7 +60,7 @@ func (b *Buffer) ReadAddr(v *net.UDPAddr) error {
 			return err
 		}
 
-		if err := b.ShiftReader(4); err != nil {
+		if err := b.Shift(4); err != nil {
 			return err
 		}
 
@@ -132,12 +132,12 @@ var magic = [16]byte{0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd,
 // Reads unconnected message sequence from the buffer and returns an error if the operation was
 // unsuccessful.
 func (b *Buffer) ReadMagic() error {
-	if b.cap-b.readOffset < 16 {
+	if b.cap-b.offset < 16 {
 		return EOF_ERROR
 	}
 
-	slice := b.slice[b.readOffset : b.readOffset+16]
-	b.readOffset += 16
+	slice := b.slice[b.offset : b.offset+16]
+	b.offset += 16
 
 	if !bytes.Equal(slice, magic[:]) {
 		return CPM_ERROR
@@ -149,12 +149,12 @@ func (b *Buffer) ReadMagic() error {
 // Writes the unconnected message sequence to the underlying buffer and returns an error if the operation
 // was unsuccessful.
 func (b *Buffer) WriteMagic() error {
-	if b.cap-b.writeOffset < 16 {
+	if b.cap-b.offset < 16 {
 		return EOF_ERROR
 	}
 
-	slice := b.slice[b.writeOffset : b.writeOffset+16]
-	b.writeOffset += 16
+	slice := b.slice[b.offset : b.offset+16]
+	b.offset += 16
 
 	copy(slice, magic[:])
 	return nil
@@ -181,7 +181,7 @@ func (b *Buffer) ReadSystemAddresses() error {
 			return err
 		}
 
-		if b.cap-b.readOffset == readDeadline {
+		if b.cap-b.offset == readDeadline {
 			break
 		}
 	}
@@ -216,12 +216,12 @@ func (b *Buffer) ReadPongData(buf []byte) error {
 
 	len := int(l)
 
-	if b.cap-b.readOffset < len {
+	if b.cap-b.offset < len {
 		return EOF_ERROR
 	}
 
-	copy(buf[:len], b.slice[b.readOffset:b.readOffset+len])
-	b.readOffset += len
+	copy(buf[:len], b.slice[b.offset:b.offset+len])
+	b.offset += len
 
 	return nil
 }
@@ -235,12 +235,12 @@ func (b *Buffer) WritePongData(buf []byte) error {
 		return err
 	}
 
-	if b.cap-b.writeOffset < len {
+	if b.cap-b.offset < len {
 		return EOF_ERROR
 	}
 
-	copy(b.slice[b.writeOffset:b.writeOffset+len], buf[:len])
-	b.writeOffset += len
+	copy(b.slice[b.offset:b.offset+len], buf[:len])
+	b.offset += len
 
 	return nil
 }

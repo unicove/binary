@@ -132,7 +132,7 @@ var magic = [16]byte{0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd,
 // Reads unconnected message sequence from the buffer and returns an error if the operation was
 // unsuccessful.
 func (b *Buffer) ReadMagic() error {
-	if b.cap-b.offset < 16 {
+	if b.len-b.offset < 16 {
 		return EOF_ERROR
 	}
 
@@ -149,7 +149,7 @@ func (b *Buffer) ReadMagic() error {
 // Writes the unconnected message sequence to the underlying buffer and returns an error if the operation
 // was unsuccessful.
 func (b *Buffer) WriteMagic() error {
-	if b.cap-b.offset < 16 {
+	if b.len-b.offset < 16 {
 		return EOF_ERROR
 	}
 
@@ -181,7 +181,7 @@ func (b *Buffer) ReadSystemAddresses() error {
 			return err
 		}
 
-		if b.cap-b.offset == readDeadline {
+		if b.len-b.offset == readDeadline {
 			break
 		}
 	}
@@ -216,7 +216,7 @@ func (b *Buffer) ReadPongData(buf []byte) error {
 
 	len := int(l)
 
-	if b.cap-b.offset < len {
+	if b.len-b.offset < len {
 		return EOF_ERROR
 	}
 
@@ -235,7 +235,7 @@ func (b *Buffer) WritePongData(buf []byte) error {
 		return err
 	}
 
-	if b.cap-b.offset < len {
+	if b.len-b.offset < len {
 		return EOF_ERROR
 	}
 

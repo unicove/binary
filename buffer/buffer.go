@@ -72,7 +72,7 @@ func (b *Buffer) Bytes() []byte {
 // Attempts to shift the offset index by the offset passed. Returns an error if the EOF would
 // reach in doing so.
 func (b *Buffer) Shift(n int) error {
-	if b.cap-b.offset-n < 1 {
+	if b.len-b.offset-n < 1 {
 		return EOF_ERROR
 	}
 
@@ -83,7 +83,7 @@ func (b *Buffer) Shift(n int) error {
 // Reads the content until either EOF is reached or the maximum capacity of the provided slice
 // gets fully used.
 func (b *Buffer) Read(buf []byte) error {
-	n := b.cap - b.offset
+	n := b.len - b.offset
 	if n < 1 {
 		return EOF_ERROR
 	}
@@ -98,7 +98,7 @@ func (b *Buffer) Read(buf []byte) error {
 // Writes the contents of the provided slice until either EOF is reached or the maximum capacity of
 // the underlying buffer gets fully used.
 func (b *Buffer) Write(buf []byte) error {
-	n := b.cap - b.offset
+	n := b.len - b.offset
 	if n < 1 {
 		return EOF_ERROR
 	}

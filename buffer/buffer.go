@@ -5,6 +5,7 @@ package buffer
 type Buffer struct {
 	slice  []byte
 	cap    int
+	len    int
 	offset int
 }
 
@@ -13,14 +14,17 @@ func New(len int) *Buffer {
 	return &Buffer{
 		slice:  make([]byte, len),
 		cap:    len,
+		len:    len,
 		offset: 0,
 	}
 }
 
+// Creates a new buffer from the provided slice
 func From(slice []byte) *Buffer {
 	return &Buffer{
 		slice:  slice,
 		cap:    len(slice),
+		len:    len(slice),
 		offset: 0,
 	}
 }
@@ -30,19 +34,29 @@ func (b *Buffer) Capacity() int {
 	return b.cap
 }
 
+func (b *Buffer) Length() int {
+	return b.len
+}
+
 // Returns the offset index value
 func (b *Buffer) Offset() int {
 	return b.offset
 }
 
-// Returns the number of bytes left to reach the capacity of the buffer.
+// Returns the number of bytes left to reach the max length of the buffer
 func (b *Buffer) Remaining() int {
-	return b.cap - b.offset
+	return b.len - b.offset
+}
+
+// Resizes the internal buffer's reference portion to the provided length
+func (b *Buffer) Resize(len int) {
+	b.len = len
 }
 
 // Resets the buffer's offset index to 0
 func (b *Buffer) Reset() {
 	b.offset = 0
+	b.len = b.cap
 }
 
 // Returns a reference to the underlying slice in the buffer

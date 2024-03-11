@@ -73,12 +73,6 @@ func (b *Buffer) Slice() []byte {
 	return b.slice
 }
 
-// Creates a slice of the buffer's internal slice from the the internal buffer's cursor to the
-// number of bytes passed
-func (b *Buffer) RefSlice(size int) []byte {
-	return b.slice[b.offset:size]
-}
-
 // Attempts to shift the offset index by the offset passed. Returns an error if the EOF would
 // reach in doing so.
 func (b *Buffer) Shift(n int) error {
@@ -94,6 +88,21 @@ func (b *Buffer) Shift(n int) error {
 // buffer's internal cursor.
 func (b *Buffer) Bytes() []byte {
 	return b.slice[:b.offset]
+}
+
+// Reads the content until either EOF is reached or the number of provided bytes to be read is
+// read from the buffer. It returns a slice referencing to the buffer's internal slice.
+func (b *Buffer) RefRead(size int) ([]byte, error) {
+	n := b.len - b.offset
+	if n < 1 {
+		return nil, ErrEndOfFile
+	}
+
+	l := min(n, size)
+	slice := b.slice[b.offset : b.offset+l]
+
+	b.offset += l
+	return slice, nil
 }
 
 // Reads the content until either EOF is reached or the maximum capacity of the provided slice

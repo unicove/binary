@@ -73,6 +73,12 @@ func (b *Buffer) Slice() []byte {
 	return b.slice
 }
 
+// Creates a slice of the buffer's internal slice from the the internal buffer's cursor to the
+// number of bytes passed
+func (b *Buffer) RefSlice(size int) []byte {
+	return b.slice[b.offset:size]
+}
+
 // Attempts to shift the offset index by the offset passed. Returns an error if the EOF would
 // reach in doing so.
 func (b *Buffer) Shift(n int) error {
@@ -82,12 +88,6 @@ func (b *Buffer) Shift(n int) error {
 
 	b.offset += n
 	return nil
-}
-
-// Creates a slice of the buffer's internal slice from the start till the index value passed and
-// returns it.
-func (b *Buffer) Get(index int) []byte {
-	return b.slice[:index]
 }
 
 // Returns a slice of the buffer's internal slice from the start till the offset value of the

@@ -66,7 +66,7 @@ func (b *Buffer) ReadAddr(v *net.UDPAddr) error {
 
 		v.Port = int(port)
 	default:
-		return CPI_ERROR
+		return ErrInvalidIPVersion
 	}
 
 	return nil
@@ -133,14 +133,14 @@ var magic = [16]byte{0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd,
 // unsuccessful.
 func (b *Buffer) ReadMagic() error {
 	if b.len-b.offset < 16 {
-		return EOF_ERROR
+		return ErrEndOfFile
 	}
 
 	slice := b.slice[b.offset : b.offset+16]
 	b.offset += 16
 
 	if !bytes.Equal(slice, magic[:]) {
-		return CPM_ERROR
+		return ErrInvalidMagic
 	}
 
 	return nil
@@ -150,7 +150,7 @@ func (b *Buffer) ReadMagic() error {
 // was unsuccessful.
 func (b *Buffer) WriteMagic() error {
 	if b.len-b.offset < 16 {
-		return EOF_ERROR
+		return ErrEndOfFile
 	}
 
 	slice := b.slice[b.offset : b.offset+16]
@@ -217,7 +217,7 @@ func (b *Buffer) ReadPongData(buf []byte) error {
 	len := int(l)
 
 	if b.len-b.offset < len {
-		return EOF_ERROR
+		return ErrEndOfFile
 	}
 
 	copy(buf[:len], b.slice[b.offset:b.offset+len])
@@ -236,7 +236,7 @@ func (b *Buffer) WritePongData(buf []byte) error {
 	}
 
 	if b.len-b.offset < len {
-		return EOF_ERROR
+		return ErrEndOfFile
 	}
 
 	copy(b.slice[b.offset:b.offset+len], buf[:len])

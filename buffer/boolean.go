@@ -20,7 +20,7 @@ func (b *Buffer) ReadBool() (bool, error) {
 	case falseByte:
 		return false, nil
 	default:
-		return false, CPB_ERROR
+		return false, ErrInvalidBool
 	}
 }
 

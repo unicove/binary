@@ -38,46 +38,60 @@ func (b *Buffer) Length() int {
 	return b.len
 }
 
-// Returns the offset index value
+// Returns the buffer's internal cursor offset value
 func (b *Buffer) Offset() int {
 	return b.offset
 }
 
-// Returns the number of bytes left to reach the max length of the buffer
+// Sets the buffer's internal cursor offset to the one provided
+func (b *Buffer) SetOffset(offset int) {
+	b.offset = offset
+}
+
+// Returns the number of bytes left from the cursor's position to the length
+// of the buffer.
 func (b *Buffer) Remaining() int {
 	return b.len - b.offset
 }
 
-// Resizes the internal buffer's reference portion to the provided length
+// Resizes the buffer's internal length. This is sometimes used so that we can restrict
+// the buffer from reading and writing data beyond a certain position in the cursor.
 func (b *Buffer) Resize(len int) {
 	b.len = len
 }
 
-// Resets the buffer's offset index to 0
+// Resets the buffer's internal cursor position to 0 and resets the length back to the original
+// capacity.
 func (b *Buffer) Reset() {
 	b.offset = 0
 	b.len = b.cap
 }
 
-// Returns a reference to the underlying slice in the buffer
+// Returns a reference to the buffer's internal slice allocated by the buffer when it was created.
+// Any changes made to the provided slice will also reflect in the buffer.
 func (b *Buffer) Slice() []byte {
 	return b.slice
-}
-
-// Returns a slice of the portion of the buffer that has been reached so far
-func (b *Buffer) Bytes() []byte {
-	return b.slice[:b.offset]
 }
 
 // Attempts to shift the offset index by the offset passed. Returns an error if the EOF would
 // reach in doing so.
 func (b *Buffer) Shift(n int) error {
 	if b.len-b.offset-n < 1 {
-		return EOF_ERROR
+		return ErrEndOfFile
 	}
 
 	b.offset += n
 	return nil
+}
+
+// Creates a slice of the buffer's internal slice from the start till the index value passed. If the
+// index value is < 0 then it returns till the buffer's internal cursor value.
+func (b *Buffer) Get(index int) []byte {
+	if index < 0 {
+		return b.slice[:b.offset]
+	}
+
+	return b.slice[:b.offset]
 }
 
 // Reads the content until either EOF is reached or the maximum capacity of the provided slice
@@ -85,7 +99,7 @@ func (b *Buffer) Shift(n int) error {
 func (b *Buffer) Read(buf []byte) error {
 	n := b.len - b.offset
 	if n < 1 {
-		return EOF_ERROR
+		return ErrEndOfFile
 	}
 
 	l := min(n, len(buf))
@@ -100,7 +114,7 @@ func (b *Buffer) Read(buf []byte) error {
 func (b *Buffer) Write(buf []byte) error {
 	n := b.len - b.offset
 	if n < 1 {
-		return EOF_ERROR
+		return ErrEndOfFile
 	}
 
 	l := min(n, len(buf))

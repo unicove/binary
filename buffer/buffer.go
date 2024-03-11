@@ -84,13 +84,15 @@ func (b *Buffer) Shift(n int) error {
 	return nil
 }
 
-// Creates a slice of the buffer's internal slice from the start till the index value passed. If the
-// index value is < 0 then it returns till the buffer's internal cursor value.
+// Creates a slice of the buffer's internal slice from the start till the index value passed and
+// returns it.
 func (b *Buffer) Get(index int) []byte {
-	if index < 0 {
-		return b.slice[:b.offset]
-	}
+	return b.slice[:index]
+}
 
+// Returns a slice of the buffer's internal slice from the start till the offset value of the
+// buffer's internal cursor.
+func (b *Buffer) Bytes() []byte {
 	return b.slice[:b.offset]
 }
 

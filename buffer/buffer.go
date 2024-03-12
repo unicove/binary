@@ -10,8 +10,8 @@ type Buffer struct {
 }
 
 // Creates and returns a new Buffer by allocating a new slice of the provided length
-func New(len int) *Buffer {
-	return &Buffer{
+func New(len int) Buffer {
+	return Buffer{
 		slice:  make([]byte, len),
 		cap:    len,
 		len:    len,
@@ -20,8 +20,8 @@ func New(len int) *Buffer {
 }
 
 // Creates a new buffer from the provided slice
-func From(slice []byte) *Buffer {
-	return &Buffer{
+func From(slice []byte) Buffer {
+	return Buffer{
 		slice:  slice,
 		cap:    len(slice),
 		len:    len(slice),

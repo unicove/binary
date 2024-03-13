@@ -66,7 +66,12 @@ func (b *Buffer) ReadAddr(v *net.UDPAddr) error {
 
 		v.Port = int(port)
 	default:
-		return ErrInvalidIPVersion
+		/*
+		 * HACK: This may be completely fine to return no error upon encountering an invalid IP version because upon
+		 * using wireshark to investigate how system addresses are sent by the client, their version is encoded incorrectly
+		 * which may cause problems with our implementation if we returned an error.
+		 */
+		return nil
 	}
 
 	return nil
@@ -74,8 +79,7 @@ func (b *Buffer) ReadAddr(v *net.UDPAddr) error {
 
 // Writes a UDP Socket Address to the buffer.
 func (b *Buffer) WriteAddr(v *net.UDPAddr) error {
-	switch len(v.IP) {
-	case net.IPv4len:
+	if v.IP.To4() != nil {
 		if err := b.WriteUint8(ipv4); err != nil {
 			return err
 		}
@@ -97,7 +101,7 @@ func (b *Buffer) WriteAddr(v *net.UDPAddr) error {
 		if err := b.WriteUint16(uint16(v.Port), byteorder.BigEndian); err != nil {
 			return err
 		}
-	case net.IPv6len:
+	} else {
 		if err := b.WriteUint8(ipv6); err != nil {
 			return err
 		}
@@ -192,13 +196,13 @@ func (b *Buffer) ReadSystemAddresses() error {
 // Writes system addresses from the provided slice in the underlying buffer and returns an error if the
 // operation was unsuccessful.
 func (b *Buffer) WriteSystemAddresses() error {
-	addr := net.UDPAddr{
-		IP:   net.ParseIP("255.255.255.255"),
-		Port: 19132,
+	addr, err := net.ResolveUDPAddr("udp", "255.255.255.255:19132")
+	if err != nil {
+		return err
 	}
 
 	for i := 0; i < SYSTEM_ADDRESSES_COUNT; i++ {
-		if err := b.WriteAddr(&addr); err != nil {
+		if err := b.WriteAddr(addr); err != nil {
 			return err
 		}
 	}

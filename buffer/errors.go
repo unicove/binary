@@ -10,10 +10,6 @@ var ErrEndOfFile = errors.New("could not complete the operation as eof was reach
 // numeric datatypes
 var ErrInvalidByteOrder = errors.New("could not parse the byteorder from the provided endianness id")
 
-// ErrInvalidIPVersion is the error returned when unknown ipaddress version is provided in encoding/decoding
-// of IP addresses
-var ErrInvalidIPVersion = errors.New("could not parse the ip address version from the provided version id")
-
 // ErrInvalidBool is the error returned when unknown boolbyte is provided in encoding/decoding of booleans
 var ErrInvalidBool = errors.New("could not parse the boolbyte from the provided byte")
 

@@ -9,12 +9,12 @@ type Buffer struct {
 	offset int
 }
 
-// Creates and returns a new Buffer by allocating a new slice of the provided length
-func New(len int) Buffer {
+// Creates and returns a new Buffer of provided capacity
+func New(cap int) Buffer {
 	return Buffer{
-		slice:  make([]byte, len),
-		cap:    len,
-		len:    len,
+		slice:  make([]byte, cap),
+		cap:    cap,
+		len:    cap,
 		offset: 0,
 	}
 }
@@ -48,8 +48,7 @@ func (b *Buffer) SetOffset(offset int) {
 	b.offset = offset
 }
 
-// Returns the number of bytes left from the cursor's position to the length
-// of the buffer.
+// Returns the number of bytes left to reach the buffer's internal cursor value
 func (b *Buffer) Remaining() int {
 	return b.len - b.offset
 }
@@ -67,20 +66,19 @@ func (b *Buffer) Reset() {
 	b.len = b.cap
 }
 
-// Returns a reference to the buffer's internal slice allocated by the buffer when it was created.
-// Any changes made to the provided slice will also reflect in the buffer.
+// Returns a shared reference to the buffer's internal slice.
 func (b *Buffer) Slice() []byte {
 	return b.slice
 }
 
-// Returns a slice of the buffer's internal slice from the start till the offset value of the
-// buffer's internal cursor.
+// Returns a shared reference to the buffer's internal slice returning a sequence of bytes that
+// we have read till now or written till now to the buffer.
 func (b *Buffer) Bytes() []byte {
 	return b.slice[:b.offset]
 }
 
-// Attempts to shift the offset index by the offset passed. Returns an error if the EOF would
-// reach in doing so.
+// Shifts the buffer's offset by the number of bytes passed. Returns an error if the operation
+// failed.
 func (b *Buffer) Shift(n int) error {
 	if b.len-b.offset-n < 1 {
 		return ErrEndOfFile
@@ -90,9 +88,8 @@ func (b *Buffer) Shift(n int) error {
 	return nil
 }
 
-// Reads the content until either EOF is reached or the number of provided bytes to be read is
-// read from the buffer. It returns a slice referencing to the buffer's internal slice.
-func (b *Buffer) CreateRef(bytes int) ([]byte, error) {
+// Returns a shared reference to the buffer's internal slice containing the number of bytes passed.
+func (b *Buffer) Get(bytes int) ([]byte, error) {
 	n := b.len - b.offset
 	if n < 1 {
 		return nil, ErrEndOfFile
